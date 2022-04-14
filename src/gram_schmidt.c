@@ -40,16 +40,16 @@ static int32_t inner_product(int32_t dim, double *left_vec, double *right_vec,
 static int32_t sub_vector(int32_t dim, double coef, double *target, double *base);
 /*
  * \brief 直交するベクトルの計算
- * \param[in]    dim         次元数
- * \param[in]    current_idx 計算対象のインデックス
- * \param[inout] *dots       内積値（作業用）
- * \param[inout] vecs        ベクトル
- *                           サイズ：dim * vec_num、
- *                           正規直交化するベクトル：行ベクトル形式
+ * \param[in]    dim   次元数
+ * \param[in]    idx   計算対象のインデックス
+ * \param[inout] *dots 内積値（作業用）
+ * \param[inout] vecs  ベクトル
+ *                     サイズ：dim * vec_num、
+ *                     正規直交化するベクトル：行ベクトル形式
  * \retval RETURN_OK_GS 正常終了
  * \retval RETURN_NG_GS 異常終了
  */
-static int32_t orthogonal_vector(int32_t dim, int32_t current_idx, double *dots,
+static int32_t orthogonal_vector(int32_t dim, int32_t idx, double *dots,
                                  double *vecs);
 /*
  * \brief スケーリング
@@ -61,7 +61,7 @@ static int32_t orthogonal_vector(int32_t dim, int32_t current_idx, double *dots,
  */
 static int32_t scaling(int32_t dim, double coef, double *vec);
 
-int32_t GS_orthonormalization(int32_t dim, int32_t vec_num, double *vecs) {
+int32_t GS_orthonormalization(int32_t dim, int32_t num, double *vecs) {
     int32_t ret = (int32_t)GS_NG;
     int32_t func_val;
     int32_t k;
@@ -70,7 +70,7 @@ int32_t GS_orthonormalization(int32_t dim, int32_t vec_num, double *vecs) {
     double *work;
 
     if (NULL != vecs) {
-        work = (double *)malloc(sizeof(double) * (vec_num - 1));
+        work = (double *)malloc(sizeof(double) * (num - 1));
         if (NULL == work) {
             goto EXIT_GS_ORTH;
         }
@@ -87,7 +87,7 @@ int32_t GS_orthonormalization(int32_t dim, int32_t vec_num, double *vecs) {
             goto EXIT_GS_ORTH;
         }
         /* e_{1}からe_{n-1}を計算 */
-        for (k = 1; k < vec_num; k++) {
+        for (k = 1; k < num; k++) {
             target = &vecs[k * dim];
             /* 直交ベクトルf_{k}を計算 */
             func_val = orthogonal_vector(dim, k, work, vecs);
@@ -165,7 +165,7 @@ static int32_t sub_vector(int32_t dim, double coef, double *target, double *base
     return ret;
 }
 
-static int32_t orthogonal_vector(int32_t dim, int32_t current_idx, double *dots,
+static int32_t orthogonal_vector(int32_t dim, int32_t idx, double *dots,
                                  double *vecs) {
     int32_t ret = (int32_t)RETURN_NG_GS;
     int32_t i;
@@ -173,10 +173,10 @@ static int32_t orthogonal_vector(int32_t dim, int32_t current_idx, double *dots,
     double *target;
 
     if ((NULL != dots) && (NULL != vecs)) {
-        target = &vecs[current_idx * dim];
+        target = &vecs[idx * dim];
 
         /* 内積を計算 */
-        for (i = 0; i < current_idx; i++) {
+        for (i = 0; i < idx; i++) {
             func_val = inner_product(dim, target, &vecs[i * dim], &dots[i]);
 
             if ((int32_t)RETURN_OK_GS != func_val) {
@@ -184,7 +184,7 @@ static int32_t orthogonal_vector(int32_t dim, int32_t current_idx, double *dots,
             }
         }
         /* ベクトルの差を計算 */
-        for (i = 0; i < current_idx; i++) {
+        for (i = 0; i < idx; i++) {
             func_val = sub_vector(dim, dots[i], target, &vecs[i * dim]);
 
             if ((int32_t)RETURN_OK_GS != func_val) {

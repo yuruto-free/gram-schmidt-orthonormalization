@@ -89,18 +89,15 @@ static void print_vec(const struct data_t *target) {
     int32_t i, j;
     int32_t dim, vec_num;
     double *estimated_vec;
-    const double *true_vec;
     dim     = target->dim;
     vec_num = target->vec_num;
 
     for (i = 0; i < vec_num; i++) {
         estimated_vec = &(target->vecs[i * dim]);
-        true_vec      = &(target->ans[i * dim]);
-        printf("[%03d]\n", i);
+        printf("[%03d]", i);
 
         for (j = 0; j < dim; j++) {
-            printf("    %+.5f (%.13e)\n", estimated_vec[j],
-                   fabs(estimated_vec[j] - true_vec[j]));
+            printf(" %+.5f", estimated_vec[j]);
         }
         printf("\n");
     }
