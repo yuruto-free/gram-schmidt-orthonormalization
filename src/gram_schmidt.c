@@ -67,7 +67,7 @@ int32_t GS_orthonormalization(int32_t dim, int32_t num, double *vecs) {
     int32_t k;
     double norm;
     double *target;
-    double *work;
+    double *work = NULL;
 
     if (NULL != vecs) {
         work = (double *)malloc(sizeof(double) * (num - 1));
@@ -106,10 +106,12 @@ int32_t GS_orthonormalization(int32_t dim, int32_t num, double *vecs) {
                 goto EXIT_GS_ORTH;
             }
         }
-        free(work);
         ret = (int32_t)GS_OK;
     }
 EXIT_GS_ORTH:
+    if (NULL != work) {
+        free(work);
+    }
 
     return ret;
 }
